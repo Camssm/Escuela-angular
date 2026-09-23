@@ -1,0 +1,18 @@
+<div class="container">
+  <h2>Administración - Asignación de Cursos</h2>
+
+  <form (ngSubmit)="guardarInscripcion()" class="formulario">
+    <input type="text" [(ngModel)]="nuevaInscripcion.alumno" name="alumno" placeholder="Nombre Alumno" required />
+    <input type="text" [(ngModel)]="nuevaInscripcion.curso" name="curso" placeholder="Nombre Curso" required />
+    <button type="submit">Asignar Curso</button>
+  </form>
+
+  <hr />
+
+  <h3>Inscripciones Activas</h3>
+  <ul>
+    <li *ngFor="let item of inscripciones">
+      Alumno: <strong>{{ item.alumno }}</strong> en el curso: <strong>{{ item.curso }}</strong>
+    </li>
+  </ul>
+</div>

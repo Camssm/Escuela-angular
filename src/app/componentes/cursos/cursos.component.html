@@ -1,0 +1,18 @@
+<div class="container">
+  <h2>Gestión de Cursos</h2>
+
+  <form (ngSubmit)="guardarCurso()" class="formulario">
+    <input type="text" [(ngModel)]="nuevoCurso.nombre" name="nombre" placeholder="Nombre del curso" required />
+    <input type="text" [(ngModel)]="nuevoCurso.duracion" name="duracion" placeholder="Duración (ej. 4 meses)" required />
+    <button type="submit">Agregar Curso</button>
+  </form>
+
+  <hr />
+
+  <h3>Lista de Cursos</h3>
+  <ul>
+    <li *ngFor="let curso of cursos">
+      {{ curso.nombre }} ({{ curso.duracion }})
+    </li>
+  </ul>
+</div>
