@@ -1,12 +1,6 @@
 <div class="container">
   <h1>Gestión de Alumnos</h1>
 
-  <div class="row">
-    <div class="col mt-2"> 
-      <button type="button" class="btn btn-primary" [routerLink]="['/']">Home</button>
-    </div>
-  </div>
-
   <!-- Formulario Reactivo -->
   <div class="row mt-4">
     <form [formGroup]="formulario" (ngSubmit)="guardarAlumno()">

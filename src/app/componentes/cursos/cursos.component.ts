@@ -1,28 +1,54 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-
-interface Curso {
-  id?: number;
-  nombre: string;
-  duracion: string;
-}
+import { RouterLink } from '@angular/router';
+import { CursoService, Curso } from '../../servicios/curso.service'; // Revisa la ruta de tu servicio
 
 @Component({
   selector: 'app-cursos',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink],
   templateUrl: './cursos.component.html',
   styleUrls: ['./cursos.component.css']
 })
-export class CursosComponent {
-  nuevoCurso: Curso = { nombre: '', duracion: '' };
+export class CursosComponent implements OnInit {
+
+  formulario!: FormGroup;
   cursos: Curso[] = [];
 
-  guardarCurso() {
-    if (this.nuevoCurso.nombre && this.nuevoCurso.duracion) {
-      this.cursos.push({ ...this.nuevoCurso, id: Date.now() });
-      this.nuevoCurso = { nombre: '', duracion: '' };
-    }
+  constructor(
+    private cursoService: CursoService,
+    private formBuilder: FormBuilder
+  ) { }
+
+  ngOnInit(): void {
+    this.initializeForm();
+    this.obtenerCursos();
+  }
+
+  initializeForm(): void {
+    this.formulario = this.formBuilder.group({
+      materia: ['', [Validators.required, Validators.minLength(3)]],
+      nombreMaestro: ['', [Validators.required, Validators.minLength(3)]],
+      numSalon: [null, [Validators.required, Validators.min(1)]],
+      administracionId: [1] // Valor por defecto o el ID que corresponda
+    });
+  }
+
+  obtenerCursos(): void {
+    this.cursoService.getCursos().subscribe(resp => {
+      this.cursos = resp;
+    });
+  }
+
+  guardarCurso(): void {
+    if (this.formulario.invalid) return;
+
+    const nuevoCurso: Curso = this.formulario.value;
+
+    this.cursoService.nuevoCurso(nuevoCurso).subscribe(resp => {
+      this.cursos.push(resp);
+      this.formulario.reset({ administracionId: 1 });
+    });
   }
 }

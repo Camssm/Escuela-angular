@@ -1,13 +1,15 @@
 <main>
   <h1>Sistema Escolar</h1>
 
-  <nav>
+  <!-- La navegación SOLO aparece si el usuario está logueado -->
+  <nav *ngIf="isLoggedIn()">
     <button routerLink="/alumnos">Ver Alumnos</button>
     <button routerLink="/cursos">Ver Cursos</button>
     <button routerLink="/administracion">Administración</button>
+    <button (click)="logout()" style="background-color: #ff4d4d; color: white;">Cerrar Sesión</button>
   </nav>
 
-  <hr>
+  <hr *ngIf="isLoggedIn()">
 
   <router-outlet></router-outlet>
 </main>
