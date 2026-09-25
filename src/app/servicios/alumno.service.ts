@@ -18,12 +18,12 @@ export class AlumnoService {
 
   constructor(private http: HttpClient) { }
 
-  getAlumnos(): Observable<Alumno[]> {
-    return this.http.get<Alumno[]>(this.URL_RESOURCE);
-  }
+ getAlumnos(): Observable<Alumno[]> {
+  return this.http.get<Alumno[]>(`${this.URL_RESOURCE}/listar`);
+}
 
   nuevoAlumno(alumno: Alumno): Observable<Alumno> {
- return this.http.post<Alumno>(`${this.URL_RESOURCE}/agregar`, alumno); // 👈 agregado /agregar
+ return this.http.post<Alumno>(`${this.URL_RESOURCE}/agregar`, alumno);
   }
 
 

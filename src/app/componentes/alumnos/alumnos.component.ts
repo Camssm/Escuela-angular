@@ -46,7 +46,7 @@ export class AlumnosComponent implements OnInit {
     const nuevoAlumno: Alumno = this.formulario.value;
 
     this.alumnoService.nuevoAlumno(nuevoAlumno).subscribe(resp => {
-      this.alumnos.push(resp);
+        this.obtenerAlumnos(); 
       this.formulario.reset();
     });
   }

@@ -17,13 +17,13 @@ export interface Curso {
 export class CursoService {
 
   // Ajusta la URL según el puerto y endpoint de tu microservicio Cursos
-  private URL_RESOURCE = "http://localhost:8082/api/cursos"; 
+  private URL_RESOURCE = "http://localhost:8081/api/cursos"; 
 
   constructor(private http: HttpClient) { }
 
   // Obtener la lista de cursos
   getCursos(): Observable<Curso[]> {
-    return this.http.get<Curso[]>(this.URL_RESOURCE);
+    return this.http.get<Curso[]>(`${this.URL_RESOURCE}/listar`);
   }
 
   // Guardar/Crear un nuevo curso

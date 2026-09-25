@@ -54,7 +54,6 @@
     <table class="table table-striped mt-2">
       <thead>
         <tr>
-          <th>ID</th>
           <th>Materia</th>
           <th>Maestro</th>
           <th>Salón</th>
@@ -62,10 +61,9 @@
       </thead>
       <tbody>
         <tr *ngFor="let curso of cursos">
-          <td>{{ curso.id }}</td>
-          <td>{{ curso.materia }}</td>
-          <td>{{ curso.nombreMaestro }}</td>
-          <td>{{ curso.numSalon }}</td>
+          <td>{{ curso?.materia }}</td>
+          <td>{{ curso?.nombreMaestro }}</td>
+          <td>{{ curso?.numSalon }}</td>
         </tr>
       </tbody>
     </table>

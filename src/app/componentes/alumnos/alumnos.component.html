@@ -31,7 +31,7 @@
       <div class="form-group mb-3">
         <label for="gmailInput">Correo Electrónico</label>
         <input 
-          type="gmail" 
+          type="email" 
           class="form-control" 
           id="gmailInput" 
           placeholder="ejemplo@correo.com" 
@@ -48,13 +48,12 @@
 
   <hr class="my-4" />
 
-  <!-- Tabla del listado que se refresca al guardar -->
+  <!-- Tabla del listado -->
   <div class="row mt-2">
     <h3>Lista de Alumnos</h3>
     <table class="table table-striped mt-2">
       <thead>
         <tr>
-          <th>ID</th>
           <th>Nombre</th>
           <th>Apellido</th>
           <th>Gmail</th>
@@ -62,10 +61,9 @@
       </thead>
       <tbody>
         <tr *ngFor="let alumno of alumnos">
-          <td>{{ alumno.id }}</td>
-          <td>{{ alumno.nombre }}</td>
-          <td>{{ alumno.apellido }}</td>
-          <td>{{ alumno.gmail }}</td>
+          <td>{{ alumno?.nombre }}</td>
+          <td>{{ alumno?.apellido }}</td>
+          <td>{{ alumno?.gmail }}</td>
         </tr>
       </tbody>
     </table>

@@ -4,7 +4,7 @@ import { AlumnosComponent } from './componentes/alumnos/alumnos.component';
 import { CursosComponent } from './componentes/cursos/cursos.component';
 import { AdministracionComponent } from './componentes/administracion/administracion.component';
 import { LoginComponent } from './componentes/login/login.component';
-import { LoginGuard } from './guards/login.guard'; // 👈 Lo crearemos en el paso 2
+import { LoginGuard } from './guards/login.guard'; 
 
 const routes: Routes = [
   // Redirige la ruta principal a /login de una

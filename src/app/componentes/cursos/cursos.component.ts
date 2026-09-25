@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { CursoService, Curso } from '../../servicios/curso.service'; // Revisa la ruta de tu servicio
+import { CursoService, Curso } from '../../servicios/curso.service';
 
 @Component({
   selector: 'app-cursos',
@@ -30,14 +30,16 @@ export class CursosComponent implements OnInit {
     this.formulario = this.formBuilder.group({
       materia: ['', [Validators.required, Validators.minLength(3)]],
       nombreMaestro: ['', [Validators.required, Validators.minLength(3)]],
-      numSalon: [null, [Validators.required, Validators.min(1)]],
-      administracionId: [1] // Valor por defecto o el ID que corresponda
+      numSalon: [null, [Validators.required, Validators.min(1)]]
     });
   }
 
   obtenerCursos(): void {
-    this.cursoService.getCursos().subscribe(resp => {
-      this.cursos = resp;
+    this.cursoService.getCursos().subscribe({
+      next: (resp) => {
+        this.cursos = resp;
+      },
+      error: (err) => console.error('Error al obtener cursos:', err)
     });
   }
 
@@ -46,9 +48,12 @@ export class CursosComponent implements OnInit {
 
     const nuevoCurso: Curso = this.formulario.value;
 
-    this.cursoService.nuevoCurso(nuevoCurso).subscribe(resp => {
-      this.cursos.push(resp);
-      this.formulario.reset({ administracionId: 1 });
+    this.cursoService.nuevoCurso(nuevoCurso).subscribe({
+      next: () => {
+        this.obtenerCursos(); // Vuelve a pedir la lista completa para reflejar los IDs generados por el backend
+        this.formulario.reset();
+      },
+      error: (err) => console.error('Error al guardar curso:', err)
     });
   }
 }
