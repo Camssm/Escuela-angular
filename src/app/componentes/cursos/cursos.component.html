@@ -1,72 +1,74 @@
-<div class="container">
-  <h1>Gestión de Cursos</h1>
+<div class="page-container">
+  <!-- Tarjeta del Formulario -->
+  <div class="card-custom">
+    <h2 class="section-title">Gestión de Cursos</h2>
 
-  <!-- Formulario Reactivo -->
-  <div class="row mt-4">
-    <form [formGroup]="formulario" (ngSubmit)="guardarCurso()">
-
-      <!-- Campo Materia -->
-      <div class="form-group mb-3">
+    <form [formGroup]="formulario" (ngSubmit)="guardarCurso()" class="formulario-grid">
+      
+      <div class="form-group">
         <label for="materiaInput">Materia</label>
         <input 
           type="text" 
-          class="form-control" 
           id="materiaInput" 
           placeholder="Ingrese la materia" 
           formControlName="materia">
       </div>
 
-      <!-- Campo Nombre del Maestro -->
-      <div class="form-group mb-3">
+      <div class="form-group">
         <label for="nombreMaestroInput">Nombre del Maestro</label>
         <input 
           type="text" 
-          class="form-control" 
           id="nombreMaestroInput" 
           placeholder="Ingrese el nombre del maestro" 
           formControlName="nombreMaestro">
       </div>
 
-      <!-- Campo Número de Salón -->
-      <div class="form-group mb-3">
+      <div class="form-group full-width">
         <label for="numSalonInput">Número de Salón</label>
         <input 
           type="number" 
-          class="form-control" 
           id="numSalonInput" 
           placeholder="Ingrese el número de salón" 
           formControlName="numSalon">
       </div>
 
-      <!-- Botón de Guardar -->
-      <button type="submit" class="btn btn-primary" [disabled]="formulario.invalid">
-        Ejecutar
-      </button>
+      <div class="form-actions full-width">
+        <button 
+          type="submit" 
+          class="btn-submit" 
+          [disabled]="formulario.invalid">
+          <span>Ejecutar</span>
+        </button>
+      </div>
 
     </form>
   </div>
 
-  <hr class="my-4" />
+  <!-- Tarjeta de la Tabla -->
+  <div class="card-custom">
+    <h3 class="section-title">Lista de Cursos</h3>
 
-  <!-- Tabla del listado que se refresca al guardar -->
-  <div class="row mt-2">
-    <h3>Lista de Cursos</h3>
-    <table class="table table-striped mt-2">
-      <thead>
-        <tr>
-          <th>Materia</th>
-          <th>Maestro</th>
-          <th>Salón</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let curso of cursos">
-          <td>{{ curso?.materia }}</td>
-          <td>{{ curso?.nombreMaestro }}</td>
-          <td>{{ curso?.numSalon }}</td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="table-responsive">
+      <table class="tabla-custom">
+        <thead>
+          <tr>
+            <th>Materia</th>
+            <th>Maestro</th>
+            <th>Salón</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let curso of cursos">
+            <td>{{ curso.materia }}</td>
+            <td>{{ curso.nombreMaestro }}</td>
+            <td>{{ curso.numSalon }}</td>
+          </tr>
+          <tr *ngIf="!cursos || cursos.length === 0">
+            <td colspan="3" class="empty-msg">No hay registros cargados.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
-
 </div>

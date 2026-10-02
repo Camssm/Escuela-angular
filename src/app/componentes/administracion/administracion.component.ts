@@ -1,59 +1,71 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  Validators,
+  ReactiveFormsModule
+} from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
-import { AdministracionService, Administracion } from '../../servicios/administracion.service';
+
+import {
+  AdministracionService,
+  Administracion
+} from '../../servicios/administracion.service';
 
 @Component({
   selector: 'app-administracion',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink], 
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './administracion.component.html',
   styleUrls: ['./administracion.component.css']
 })
 export class AdministracionComponent implements OnInit {
 
   formulario!: FormGroup;
-  administracion: Administracion[] = []; // 👈 Corregido typo en la variable
+
+  administraciones: Administracion[] = [];
 
   constructor(
     private administracionService: AdministracionService,
     private formBuilder: FormBuilder
-  ) { }
+  ) {}
 
   ngOnInit(): void {
     this.initializeForm();
-    this.obtenerAdministracion();
+    this.obtenerAdministraciones();
   }
 
   initializeForm(): void {
     this.formulario = this.formBuilder.group({
-      nombre: ['', [Validators.required, Validators.minLength(3)]],
-      apellido: ['', [Validators.required, Validators.minLength(3)]],
-      dni: ['', [Validators.required, Validators.pattern('^[0-9]{8}$')]],
+      nombre: ['', Validators.required],
+      apellido: ['', Validators.required],
+      dni: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
-      especialidad: ['', [Validators.required, Validators.minLength(3)]]
+      especialidad: ['', Validators.required]
     });
   }
 
-  obtenerAdministracion(): void {
-    this.administracionService.getAdministracion().subscribe({
-      next: (resp) => {
-        this.administracion = resp;
-      },
-      error: (err) => console.error('Error al obtener registros:', err)
-    });
+  obtenerAdministraciones(): void {
+    this.administracionService
+      .getAdministraciones()
+      .subscribe(resp => {
+        this.administraciones = resp;
+      });
   }
 
   guardarAdministracion(): void {
+
     if (this.formulario.invalid) return;
 
-    const nuevaAdministracion: Administracion = this.formulario.value; 
+    const nuevaAdministracion: Administracion = this.formulario.value;
 
-    this.administracionService.nuevaAdministracion(nuevaAdministracion).subscribe({
-      next: () => {
-        this.obtenerAdministracion(); 
-        this.formulario.reset();}
-       });
+    this.administracionService
+      .nuevaAdministracion(nuevaAdministracion)
+      .subscribe(() => {
+
+        this.formulario.reset();
+        this.obtenerAdministraciones();
+
+      });
   }
 }

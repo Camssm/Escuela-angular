@@ -44,16 +44,13 @@ export class CursosComponent implements OnInit {
   }
 
   guardarCurso(): void {
-    if (this.formulario.invalid) return;
+  if (this.formulario.invalid) return;
 
-    const nuevoCurso: Curso = this.formulario.value;
+  const nuevoCurso: Curso = this.formulario.value;
 
-    this.cursoService.nuevoCurso(nuevoCurso).subscribe({
-      next: () => {
-        this.obtenerCursos(); // Vuelve a pedir la lista completa para reflejar los IDs generados por el backend
-        this.formulario.reset();
-      },
-      error: (err) => console.error('Error al guardar curso:', err)
-    });
-  }
+  this.cursoService.nuevoCurso(nuevoCurso).subscribe(() => {
+    this.obtenerCursos();
+    this.formulario.reset({ administracionId: 1 });
+  });
+}
 }

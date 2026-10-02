@@ -1,10 +1,19 @@
 import { ApplicationConfig, importProvidersFrom } from '@angular/core';
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
+
 import { AppRoutingModule } from './app-routing.module';
+import { authInterceptor } from './interceptores/auth.interceptor';
 
 export const appConfig: ApplicationConfig = {
+
   providers: [
+
     importProvidersFrom(AppRoutingModule),
-    provideHttpClient() // Esto soluciona el error NullInjectorError: No provider for HttpClient
+
+    provideHttpClient(
+      withInterceptors([authInterceptor])
+    )
+
   ]
+
 };

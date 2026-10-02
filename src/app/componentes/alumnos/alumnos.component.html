@@ -1,72 +1,73 @@
-<div class="container">
-  <h1>Gestión de Alumnos</h1>
+<div class="page-container">
+  <!-- Tarjeta del Formulario -->
+  <div class="card-custom">
+    <h2 class="section-title">Gestión de Alumnos</h2>
 
-  <!-- Formulario Reactivo -->
-  <div class="row mt-4">
-    <form [formGroup]="formulario" (ngSubmit)="guardarAlumno()">
-
-      <!-- Campo Nombre -->
-      <div class="form-group mb-3">
+    <form [formGroup]="formulario" (ngSubmit)="guardarAlumno()" class="formulario-grid">
+      
+      <div class="form-group">
         <label for="nombreInput">Nombre</label>
         <input 
           type="text" 
-          class="form-control" 
           id="nombreInput" 
           placeholder="Ingrese el nombre" 
           formControlName="nombre">
       </div>
 
-      <!-- Campo Apellido -->
-      <div class="form-group mb-3">
+      <div class="form-group">
         <label for="apellidoInput">Apellido</label>
         <input 
           type="text" 
-          class="form-control" 
           id="apellidoInput" 
           placeholder="Ingrese el apellido" 
           formControlName="apellido">
       </div>
 
-      <!-- Campo Email -->
-      <div class="form-group mb-3">
+      <div class="form-group full-width">
         <label for="gmailInput">Correo Electrónico</label>
         <input 
           type="email" 
-          class="form-control" 
           id="gmailInput" 
           placeholder="ejemplo@correo.com" 
           formControlName="gmail">
       </div>
 
-      <!-- Botón de Guardar -->
-      <button type="submit" class="btn btn-primary" [disabled]="formulario.invalid">
-        Ejecutar
-      </button>
+      <div class="form-actions full-width">
+        <button 
+          type="submit" 
+          class="btn-submit" 
+          [disabled]="formulario.invalid">
+          <span>Ejecutar</span>
+        </button>
+      </div>
 
     </form>
   </div>
 
-  <hr class="my-4" />
+  <!-- Tarjeta de la Tabla -->
+  <div class="card-custom">
+    <h3 class="section-title">Lista de Alumnos</h3>
 
-  <!-- Tabla del listado -->
-  <div class="row mt-2">
-    <h3>Lista de Alumnos</h3>
-    <table class="table table-striped mt-2">
-      <thead>
-        <tr>
-          <th>Nombre</th>
-          <th>Apellido</th>
-          <th>Gmail</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let alumno of alumnos">
-          <td>{{ alumno?.nombre }}</td>
-          <td>{{ alumno?.apellido }}</td>
-          <td>{{ alumno?.gmail }}</td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="table-responsive">
+      <table class="tabla-custom">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Apellido</th>
+            <th>Gmail</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let alumno of alumnos">
+            <td>{{ alumno?.nombre }}</td>
+            <td>{{ alumno?.apellido }}</td>
+            <td>{{ alumno?.gmail }}</td>
+          </tr>
+          <tr *ngIf="!alumnos || alumnos.length === 0">
+            <td colspan="3" class="empty-msg">No hay alumnos registrados.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
-
 </div>

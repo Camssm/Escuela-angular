@@ -14,19 +14,20 @@ export interface Alumno {
 })
 export class AlumnoService {
 
-  private URL_RESOURCE = "http://localhost:8082/api/alumnos";
+  private URL_RESOURCE = 'http://localhost:8080/api/alumnos';
 
   constructor(private http: HttpClient) { }
 
- getAlumnos(): Observable<Alumno[]> {
-  return this.http.get<Alumno[]>(`${this.URL_RESOURCE}/listar`);
-}
-
-  nuevoAlumno(alumno: Alumno): Observable<Alumno> {
- return this.http.post<Alumno>(`${this.URL_RESOURCE}/agregar`, alumno);
+  getAlumnos(): Observable<Alumno[]> {
+    return this.http.get<Alumno[]>(
+      `${this.URL_RESOURCE}/alumnos`
+    );
   }
 
-
-
-
-} 
+  nuevoAlumno(alumno: Alumno): Observable<Alumno> {
+    return this.http.put<Alumno>(
+      `${this.URL_RESOURCE}/agregar`,
+      alumno
+    );
+  }
+}

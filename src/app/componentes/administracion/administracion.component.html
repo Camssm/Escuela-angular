@@ -1,98 +1,95 @@
-<div class="container">
-  <h1>Gestión de Administración</h1>
+<div class="page-container">
+  <!-- Cartão de Formulario -->
+  <div class="card-custom">
+    <h2 class="section-title">Gestión de Administración</h2>
 
-  <!-- Formulario Reactivo -->
-  <div class="row mt-4">
-    <form [formGroup]="formulario" (ngSubmit)="guardarAdministracion()">
-
-      <!-- Campo Nombre -->
-      <div class="form-group mb-3">
+    <form [formGroup]="formulario" (ngSubmit)="guardarAdministracion()" class="formulario-grid">
+      
+      <div class="form-group">
         <label for="nombreInput">Nombre</label>
-        <input 
-          type="text" 
-          class="form-control" 
-          id="nombreInput" 
-          placeholder="Ingrese el nombre" 
+        <input
+          type="text"
+          id="nombreInput"
+          placeholder="Ingrese el nombre"
           formControlName="nombre">
       </div>
 
-      <!-- Campo Apellido -->
-      <div class="form-group mb-3">
+      <div class="form-group">
         <label for="apellidoInput">Apellido</label>
-        <input 
-          type="text" 
-          class="form-control" 
-          id="apellidoInput" 
-          placeholder="Ingrese el apellido" 
+        <input
+          type="text"
+          id="apellidoInput"
+          placeholder="Ingrese el apellido"
           formControlName="apellido">
       </div>
 
-      <!-- Campo DNI -->
-      <div class="form-group mb-3">
+      <div class="form-group">
         <label for="dniInput">DNI</label>
-        <input 
-          type="text" 
-          class="form-control" 
-          id="dniInput" 
-          placeholder="Ingrese el DNI (8 dígitos)" 
+        <input
+          type="text"
+          id="dniInput"
+          placeholder="Ingrese el DNI"
           formControlName="dni">
       </div>
 
-      <!-- Campo Email -->
-      <div class="form-group mb-3">
+      <div class="form-group">
         <label for="emailInput">Correo Electrónico</label>
-        <input 
-          type="email" 
-          class="form-control" 
-          id="emailInput" 
-          placeholder="ejemplo@correo.com" 
+        <input
+          type="email"
+          id="emailInput"
+          placeholder="ejemplo@correo.com"
           formControlName="email">
       </div>
 
-      <!-- Campo Especialidad -->
-      <div class="form-group mb-3">
+      <div class="form-group full-width">
         <label for="especialidadInput">Especialidad</label>
-        <input 
-          type="text" 
-          class="form-control" 
-          id="especialidadInput" 
-          placeholder="Ingrese la especialidad" 
+        <input
+          type="text"
+          id="especialidadInput"
+          placeholder="Ingrese la especialidad"
           formControlName="especialidad">
       </div>
 
-      <!-- Botón de Guardar -->
-      <button type="submit" class="btn btn-primary" [disabled]="formulario.invalid">
-        Ejecutar
-      </button>
+      <div class="form-actions full-width">
+        <button
+          type="submit"
+          class="btn-submit"
+          [disabled]="formulario.invalid">
+          <span>Ejecutar</span>
+        </button>
+      </div>
 
     </form>
   </div>
 
-  <hr class="my-4" />
+  <div class="card-custom">
+    <h3 class="section-title">Lista de Administración</h3>
 
-  <!-- Tabla del listado -->
-  <div class="row mt-2">
-    <h3>Lista de Personal Administrativo</h3>
-    <table class="table table-striped mt-2">
-      <thead>
-        <tr>
-          <th>Nombre</th>
-          <th>Apellido</th>
-          <th>DNI</th>
-          <th>Email</th>
-          <th>Especialidad</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let item of administracion">
-          <td>{{ item?.nombre }}</td>
-          <td>{{ item?.apellido }}</td>
-          <td>{{ item?.dni }}</td>
-          <td>{{ item?.email }}</td>
-          <td>{{ item?.especialidad }}</td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="table-responsive">
+      <table class="tabla-custom">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Apellido</th>
+            <th>DNI</th>
+            <th>Email</th>
+            <th>Especialidad</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let item of administraciones">
+            <td>{{ item.nombre }}</td>
+            <td>{{ item.apellido }}</td>
+            <td>{{ item.dni }}</td>
+            <td>{{ item.email }}</td>
+            <td>{{ item.especialidad }}</td>
+          </tr>
+          <tr *ngIf="!administraciones || administraciones.length === 0">
+            <td colspan="5" class="empty-msg">No hay registros cargados.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
-
 </div>

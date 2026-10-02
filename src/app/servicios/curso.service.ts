@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
-// Interfaz que mapea tu clase Cursos.java
 export interface Curso {
   id?: number;
   materia: string;
@@ -16,18 +15,15 @@ export interface Curso {
 })
 export class CursoService {
 
-  // Ajusta la URL según el puerto y endpoint de tu microservicio Cursos
-  private URL_RESOURCE = "http://localhost:8081/api/cursos"; 
+  private URL_RESOURCE = 'http://localhost:8080/api/cursos';
 
   constructor(private http: HttpClient) { }
 
-  // Obtener la lista de cursos
   getCursos(): Observable<Curso[]> {
-    return this.http.get<Curso[]>(`${this.URL_RESOURCE}/listar`);
+    return this.http.get<Curso[]>(`${this.URL_RESOURCE}/cursos`);
   }
 
-  // Guardar/Crear un nuevo curso
-  nuevoCurso(curso: Curso): Observable<Curso> {
-    return this.http.post<Curso>(`${this.URL_RESOURCE}/agregar`, curso);
+  nuevoCurso(curso: Curso): Observable<void> {
+    return this.http.put<void>(`${this.URL_RESOURCE}/agregar`, curso);
   }
 }
