@@ -7,6 +7,7 @@ export interface Alumno {
   nombre: string;
   apellido: string;
   gmail: string;
+  habilitado?: boolean;
 }
 
 @Injectable({
@@ -28,6 +29,13 @@ export class AlumnoService {
     return this.http.put<Alumno>(
       `${this.URL_RESOURCE}/agregar`,
       alumno
+    );
+  }
+
+  cambiarEstado(id: number, habilitado: boolean): Observable<void> {
+    return this.http.put<void>(
+      `${this.URL_RESOURCE}/estado/${id}`,
+      { habilitado }
     );
   }
 }

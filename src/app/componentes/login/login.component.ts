@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Router, RouterLink } from '@angular/router'; // Importamos Router para navegar después del login
-import { LoginService } from '../../servicios/login.service'; // Ajusta la ruta a tu auth.service
+import { Router, RouterLink } from '@angular/router';
+import { LoginService } from '../../servicios/login.service';
+import { AuthService, Rol } from '../../servicios/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -18,6 +19,7 @@ export class LoginComponent implements OnInit {
 
   constructor(
     private authService: LoginService,
+    private sesion: AuthService,
     private formBuilder: FormBuilder,
     private router: Router
   ) { }
@@ -36,13 +38,14 @@ export class LoginComponent implements OnInit {
   onLogin(): void {
     if (this.formulario.invalid) return;
 
+    localStorage.removeItem('demo');
+
     this.authService.login(this.formulario.value).subscribe({
       next: (resp) => {
-        // Guardamos el token que responde el backend
         const token = resp.id_token || resp.token;
         if (token) {
-          localStorage.setItem('token', token);
-          this.router.navigate(['/administracion']); 
+          this.sesion.guardarSesion(token, resp.rol, resp.id);
+          this.router.navigate([this.sesion.inicioPorRol()]);
         }
       },
       error: (err) => {
@@ -50,5 +53,11 @@ export class LoginComponent implements OnInit {
         this.mensajeError = 'Usuario o contraseña incorrectos';
       }
     });
+  }
+
+  entrarDemo(rol: Rol): void {
+    localStorage.setItem('demo', '1');
+    this.sesion.guardarSesion('token-demo', rol);
+    this.router.navigate([this.sesion.inicioPorRol()]);
   }
 }

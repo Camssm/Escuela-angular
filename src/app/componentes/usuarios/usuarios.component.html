@@ -1,0 +1,84 @@
+<div class="page-container">
+
+  <div class="card-custom" *ngIf="esRoot">
+    <h2 class="section-title">Crear usuario</h2>
+
+    <form [formGroup]="formulario" (ngSubmit)="guardarUsuario()" class="formulario-grid">
+
+      <div class="form-group full-width">
+        <label for="rolInput">Rol</label>
+        <select id="rolInput" formControlName="rol">
+          <option [ngValue]="null" disabled>Seleccioná un rol</option>
+          <option *ngFor="let r of roles" [ngValue]="r.valor">{{ r.texto }}</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="nombreInput">Nombre</label>
+        <input type="text" id="nombreInput" placeholder="Ingrese el nombre" formControlName="nombre">
+      </div>
+
+      <div class="form-group">
+        <label for="apellidoInput">Apellido</label>
+        <input type="text" id="apellidoInput" placeholder="Ingrese el apellido" formControlName="apellido">
+      </div>
+
+      <div class="form-group">
+        <label for="emailInput">Gmail (usuario de acceso)</label>
+        <input type="email" id="emailInput" placeholder="ejemplo@gmail.com" formControlName="email">
+      </div>
+
+      <div class="form-group">
+        <label for="passwordInput">Contraseña</label>
+        <input type="password" id="passwordInput" placeholder="Mínimo 6 caracteres" formControlName="password">
+      </div>
+
+      <div class="form-actions full-width">
+        <button type="submit" class="btn-submit" [disabled]="formulario.invalid">
+          <span>Crear usuario</span>
+        </button>
+      </div>
+
+    </form>
+  </div>
+
+  <div class="card-custom">
+    <h3 class="section-title">{{ esRoot ? 'Lista de usuarios' : 'Lista de docentes' }}</h3>
+
+    <div class="table-responsive">
+      <table class="tabla-custom">
+  <thead>
+    <tr>
+      <th>Nombre</th>
+      <th>Apellido</th>
+      <th>Gmail</th>
+      <th>Rol</th>
+      <th>Estado</th>
+      <th *ngIf="esRoot">Acciones</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let u of usuarios">
+      <td>{{ u.nombre }}</td>
+      <td>{{ u.apellido }}</td>
+      <td>{{ u.email }}</td>
+      <td>{{ textoRol(u.rol) }}</td>
+      <td>
+        <span class="badge" [ngClass]="u.habilitado !== false ? 'badge-ok' : 'badge-off'">
+          {{ u.habilitado !== false ? 'Habilitado' : 'Deshabilitado' }}
+        </span>
+      </td>
+      <td *ngIf="esRoot">
+        <button type="button" class="btn-tabla" (click)="cambiarEstado(u)">
+          {{ u.habilitado !== false ? 'Deshabilitar' : 'Habilitar' }}
+        </button>
+      </td>
+    </tr>
+    <tr *ngIf="usuarios.length === 0">
+      <td [attr.colspan]="esRoot ? 6 : 5" class="empty-msg">No hay registros cargados.</td>
+    </tr>
+  </tbody>
+</table>
+    </div>
+  </div>
+</div>

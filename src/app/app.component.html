@@ -1,8 +1,9 @@
-
 <nav *ngIf="isLoggedIn()">
-  <button routerLink="/alumnos">Ver Alumnos</button>
-  <button routerLink="/cursos">Ver Cursos</button>
-  <button routerLink="/administracion">Administración</button>
+  <button *ngIf="sesion.tieneRol('ROOT')" routerLink="/usuarios">Gestión de usuarios</button>
+  <button *ngIf="sesion.tieneRol('DIRECTOR')" routerLink="/usuarios">Docentes</button>
+  <button *ngIf="sesion.tieneRol('PRECEPTOR','ADMINISTRATIVO')" routerLink="/alumnos">Alumnos</button>
+  <button *ngIf="sesion.tieneRol('DOCENTE','DIRECTOR')" routerLink="/notas">Alumnos y notas</button>
+  <button routerLink="/cursos">Cursos</button>
   <button (click)="logout()" style="background-color: #ff4d4d; color: white;">Cerrar Sesión</button>
 </nav>
 

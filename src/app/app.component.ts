@@ -1,24 +1,24 @@
 import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common'; 
-import { Router, RouterOutlet, RouterLink } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { RouterOutlet, RouterLink } from '@angular/router';
+import { AuthService } from './servicios/auth.service';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterLink], 
+  imports: [CommonModule, RouterOutlet, RouterLink],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
 
-  constructor(private router: Router) {}
+  constructor(public sesion: AuthService) {}
 
   isLoggedIn(): boolean {
-    return !!localStorage.getItem('token');
+    return this.sesion.estaLogueado();
   }
 
   logout(): void {
-    localStorage.removeItem('token');
-    this.router.navigate(['/login']);
+    this.sesion.logout();
   }
 }

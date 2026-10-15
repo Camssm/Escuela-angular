@@ -40,14 +40,23 @@ export class AlumnosComponent implements OnInit {
     });
   }
 
-  guardarAlumno(): void {
+    guardarAlumno(): void {
     if (this.formulario.invalid) return;
 
-    const nuevoAlumno: Alumno = this.formulario.value;
+    const nuevoAlumno: Alumno = { ...this.formulario.value, habilitado: true };
 
-    this.alumnoService.nuevoAlumno(nuevoAlumno).subscribe(resp => {
-        this.obtenerAlumnos(); 
+    this.alumnoService.nuevoAlumno(nuevoAlumno).subscribe(() => {
+      this.obtenerAlumnos();
       this.formulario.reset();
+    });
+  }
+
+  cambiarEstado(alumno: Alumno): void {
+    if (alumno.id === undefined) return;
+    const nuevoEstado = !alumno.habilitado;
+
+    this.alumnoService.cambiarEstado(alumno.id, nuevoEstado).subscribe(() => {
+      alumno.habilitado = nuevoEstado;
     });
   }
 }

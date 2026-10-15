@@ -5,14 +5,13 @@ import { Observable } from 'rxjs';
 export interface Curso {
   id?: number;
   materia: string;
+  docenteId: number;
   nombreMaestro: string;
-  numSalon: number;
-  administracionId?: number;
+  horario: string;
+  cupo: number;
 }
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class CursoService {
 
   private URL_RESOURCE = 'http://localhost:8080/api/cursos';
@@ -25,5 +24,13 @@ export class CursoService {
 
   nuevoCurso(curso: Curso): Observable<void> {
     return this.http.put<void>(`${this.URL_RESOURCE}/agregar`, curso);
+  }
+
+  editarCurso(curso: Curso): Observable<void> {
+    return this.http.put<void>(`${this.URL_RESOURCE}/editar`, curso);
+  }
+
+  eliminarCurso(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.URL_RESOURCE}/eliminar/${id}`);
   }
 }
