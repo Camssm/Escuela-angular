@@ -2,12 +2,15 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
+export type EstadoAlumno = 'ASIGNADO' | 'SINASIGNACION' | 'DESHABILITADO';
+
 export interface Alumno {
   id?: number;
   nombre: string;
   apellido: string;
   gmail: string;
-  habilitado?: boolean;
+  estado?: EstadoAlumno;
+  cursoId?: number | null;
 }
 
 @Injectable({
@@ -20,22 +23,22 @@ export class AlumnoService {
   constructor(private http: HttpClient) { }
 
   getAlumnos(): Observable<Alumno[]> {
-    return this.http.get<Alumno[]>(
-      `${this.URL_RESOURCE}/alumnos`
-    );
+    return this.http.get<Alumno[]>(`${this.URL_RESOURCE}/alumnos`);
   }
 
-  nuevoAlumno(alumno: Alumno): Observable<Alumno> {
-    return this.http.put<Alumno>(
-      `${this.URL_RESOURCE}/agregar`,
-      alumno
-    );
+  getAlumnosPorCurso(cursoId: number): Observable<Alumno[]> {
+    return this.http.get<Alumno[]>(`${this.URL_RESOURCE}/curso/${cursoId}`);
   }
 
-  cambiarEstado(id: number, habilitado: boolean): Observable<void> {
-    return this.http.put<void>(
-      `${this.URL_RESOURCE}/estado/${id}`,
-      { habilitado }
-    );
+  nuevoAlumno(alumno: Alumno): Observable<void> {
+    return this.http.put<void>(`${this.URL_RESOURCE}/agregar`, alumno);
+  }
+
+  editarAlumno(alumno: Alumno): Observable<void> {
+    return this.http.put<void>(`${this.URL_RESOURCE}/editar`, alumno);
+  }
+
+  cambiarEstado(id: number, estado: EstadoAlumno): Observable<void> {
+    return this.http.put<void>(`${this.URL_RESOURCE}/cambiar-estado`, { id, estado });
   }
 }

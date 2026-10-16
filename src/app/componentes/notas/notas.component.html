@@ -1,77 +1,105 @@
 <div class="page-container">
 
-  <div class="card-custom" *ngIf="puedeEditar">
-    <h2 class="section-title">{{ idEdicion !== null ? 'Modificar nota' : 'Cargar nota' }}</h2>
+  <div class="card-custom">
+    <h2 class="section-title">Alumnos y notas</h2>
+    <p class="solo-lectura" *ngIf="esDocente">
+      Podés ver todos los cursos, pero solo cargar evaluaciones y notas en los que tenés asignados.
+    </p>
+    <p class="solo-lectura" *ngIf="!puedeEditar">Vista de solo lectura</p>
+    <p class="mensaje" *ngIf="mensaje">{{ mensaje }}</p>
 
-    <form [formGroup]="formulario" (ngSubmit)="guardarNota()" class="formulario-grid">
-
-      <div class="form-group">
-        <label for="alumnoSelect">Alumno</label>
-        <select id="alumnoSelect" formControlName="alumnoId">
-          <option [ngValue]="null" disabled>Seleccioná un alumno</option>
-          <option *ngFor="let a of alumnosHabilitados" [ngValue]="a.id">{{ a.apellido }}, {{ a.nombre }}</option>        </select>
-      </div>
+    <div class="formulario-grid">
 
       <div class="form-group">
         <label for="cursoSelect">Curso</label>
-        <select id="cursoSelect" formControlName="cursoId">
+        <select id="cursoSelect" [ngModel]="cursoId" (ngModelChange)="seleccionarCurso($event)">
           <option [ngValue]="null" disabled>Seleccioná un curso</option>
-          <option *ngFor="let c of cursos" [ngValue]="c.id">{{ c.materia }}</option>
+          <option *ngFor="let c of cursos" [ngValue]="c.id">{{ c.materia }} - {{ c.horario }}</option>
+        </select>
+        <small class="solo-lectura" *ngIf="cursos.length === 0">No hay cursos cargados.</small>
+      </div>
+
+      <div class="form-group" *ngIf="cursoId !== null">
+        <label for="evaluacionSelect">Evaluación</label>
+        <select id="evaluacionSelect" [ngModel]="evaluacionId" (ngModelChange)="seleccionarEvaluacion($event)">
+          <option [ngValue]="null" disabled>Seleccioná una evaluación</option>
+          <option *ngFor="let e of evaluaciones" [ngValue]="e.id">{{ textoEvaluacion(e) }}</option>
+        </select>
+        <small class="solo-lectura" *ngIf="evaluaciones.length === 0">Este curso todavía no tiene evaluaciones.</small>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="card-custom" *ngIf="puedeEditar && cursoId !== null">
+    <h3 class="section-title">Nueva evaluación</h3>
+
+    <form [formGroup]="formulario" (ngSubmit)="crearEvaluacion()" class="formulario-grid">
+
+      <div class="form-group">
+        <label for="tipoSelect">Tipo</label>
+        <select id="tipoSelect" formControlName="tipo">
+          <option [ngValue]="null" disabled>Seleccioná el tipo</option>
+          <option *ngFor="let t of tipos" [ngValue]="t.valor">{{ t.texto }}</option>
         </select>
       </div>
 
       <div class="form-group">
-        <label for="evaluacionInput">Evaluación</label>
-        <input type="text" id="evaluacionInput" placeholder="Ej: Parcial 1" formControlName="evaluacion">
+        <label for="fechaInput">Fecha</label>
+        <input type="date" id="fechaInput" formControlName="fecha">
       </div>
 
-      <div class="form-group">
-        <label for="notaInput">Nota (1 a 10)</label>
-        <input type="number" id="notaInput" placeholder="Ingrese la nota" formControlName="nota">
+      <div class="form-group full-width">
+        <label for="descripcionInput">Descripción</label>
+        <input type="text" id="descripcionInput" placeholder="Ej: Parcial de la unidad 1" formControlName="descripcion">
       </div>
 
       <div class="form-actions full-width">
         <button type="submit" class="btn-submit" [disabled]="formulario.invalid">
-          <span>{{ idEdicion !== null ? 'Guardar cambios' : 'Agregar nota' }}</span>
-        </button>
-        <button type="button" class="btn-tabla" *ngIf="idEdicion !== null" (click)="cancelarEdicion()">
-          Cancelar
+          <span>Crear evaluación</span>
         </button>
       </div>
 
     </form>
   </div>
 
-  <div class="card-custom">
-    <h3 class="section-title">Alumnos y notas</h3>
-    <p class="solo-lectura" *ngIf="!puedeEditar">Vista de solo lectura</p>
+  <div class="card-custom" *ngIf="evaluacionId !== null">
+    <h3 class="section-title">Notas de la evaluación</h3>
 
     <div class="table-responsive">
       <table class="tabla-custom">
         <thead>
           <tr>
             <th>Alumno</th>
-            <th>Curso</th>
-            <th>Evaluación</th>
             <th>Nota</th>
             <th *ngIf="puedeEditar">Acciones</th>
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let n of notas">
-            <td>{{ nombreAlumno(n.alumnoId) }}</td>
-            <td>{{ nombreCurso(n.cursoId) }}</td>
-            <td>{{ n.evaluacion }}</td>
-            <td>{{ n.nota }}</td>
-            <td *ngIf="puedeEditar">
-              <div class="acciones">
-                <button type="button" class="btn-tabla" (click)="editar(n)">Modificar</button>
-                <button type="button" class="btn-tabla btn-peligro" (click)="eliminar(n)">Eliminar</button>
-              </div>
-            </td>
+          <tr *ngFor="let a of alumnos">
+            <td>{{ a.apellido }}, {{ a.nombre }}</td>
+
+            <td *ngIf="!puedeEditar">{{ notaDe(a.id)?.valor ?? '—' }}</td>
+
+            <ng-container *ngIf="puedeEditar">
+              <td>
+                <input class="input-nota" type="number" min="0" max="10" step="0.1"
+                       #valor [value]="notaDe(a.id)?.valor ?? ''">
+              </td>
+              <td>
+                <div class="acciones">
+                  <button type="button" class="btn-tabla" (click)="guardarNota(a, valor.value)">
+                    {{ notaDe(a.id) ? 'Modificar' : 'Agregar' }}
+                  </button>
+                  <button type="button" class="btn-tabla btn-peligro" *ngIf="notaDe(a.id)" (click)="eliminarNota(a)">
+                    Eliminar
+                  </button>
+                </div>
+              </td>
+            </ng-container>
           </tr>
-          <tr *ngIf="notas.length === 0">
-            <td [attr.colspan]="puedeEditar ? 5 : 4" class="empty-msg">No hay notas cargadas.</td>
+          <tr *ngIf="alumnos.length === 0">
+            <td [attr.colspan]="puedeEditar ? 3 : 2" class="empty-msg">Este curso no tiene alumnos asignados.</td>
           </tr>
         </tbody>
       </table>

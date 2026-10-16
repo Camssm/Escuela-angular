@@ -1,43 +1,39 @@
 <div class="page-container">
-  <!-- Tarjeta del Formulario (Root, Preceptor y Administrativo) -->
+
   <div class="card-custom" *ngIf="puedeCrear">
     <h2 class="section-title">{{ idEdicion !== null ? 'Modificar curso' : 'Gestión de Cursos' }}</h2>
+
+    <p class="mensaje" *ngIf="mensaje">{{ mensaje }}</p>
 
     <form [formGroup]="formulario" (ngSubmit)="guardarCurso()" class="formulario-grid">
 
       <div class="form-group">
         <label for="materiaInput">Materia</label>
-        <input
-          type="text"
-          id="materiaInput"
-          placeholder="Ingrese la materia"
-          formControlName="materia">
+        <input type="text" id="materiaInput" placeholder="Ingrese la materia" formControlName="materia">
       </div>
 
       <div class="form-group">
         <label for="docenteSelect">Docente</label>
-        <select id="docenteSelect" formControlName="docenteId">
+
+        <select *ngIf="listaDocentes === true" id="docenteSelect" formControlName="docenteId">
           <option [ngValue]="null" disabled>Seleccioná un docente</option>
-          <option *ngFor="let d of docentes" [ngValue]="d.id">{{ d.apellido }}, {{ d.nombre }}</option>
+          <option *ngFor="let d of docentes" [ngValue]="d.id">{{ d.apellido }}, {{ d.nombre }} (ID {{ d.id }})</option>
         </select>
+
+        <ng-container *ngIf="listaDocentes === false">
+          <input type="number" id="docenteSelect" placeholder="ID del docente" formControlName="docenteId">
+          <small class="solo-lectura">Ingresá el ID del docente (figura en la lista de personal).</small>
+        </ng-container>
       </div>
 
       <div class="form-group">
         <label for="horarioInput">Horario</label>
-        <input
-          type="text"
-          id="horarioInput"
-          placeholder="Ej: Lunes 8:00 a 10:00"
-          formControlName="horario">
+        <input type="text" id="horarioInput" placeholder="Ej: Lunes 8:00 a 10:00" formControlName="horario">
       </div>
 
       <div class="form-group">
         <label for="cupoInput">Cupo</label>
-        <input
-          type="number"
-          id="cupoInput"
-          placeholder="Cantidad máxima de alumnos"
-          formControlName="cupo">
+        <input type="number" id="cupoInput" placeholder="Cantidad máxima de alumnos" formControlName="cupo">
       </div>
 
       <div class="form-actions full-width">
@@ -52,10 +48,10 @@
     </form>
   </div>
 
-  <!-- Tarjeta de la Tabla -->
   <div class="card-custom">
-    <h3 class="section-title">{{ esDocente ? 'Mis cursos' : 'Lista de Cursos' }}</h3>
+    <h3 class="section-title">Lista de Cursos</h3>
     <p class="solo-lectura" *ngIf="!puedeCrear">Vista de solo lectura</p>
+    <p class="mensaje" *ngIf="mensaje && !puedeCrear">{{ mensaje }}</p>
 
     <div class="table-responsive">
       <table class="tabla-custom">
@@ -68,7 +64,6 @@
             <th *ngIf="puedeCrear">Acciones</th>
           </tr>
         </thead>
-
         <tbody>
           <tr *ngFor="let curso of cursos">
             <td>{{ curso.materia }}</td>
@@ -82,7 +77,7 @@
               </div>
             </td>
           </tr>
-          <tr *ngIf="!cursos || cursos.length === 0">
+          <tr *ngIf="cursos.length === 0">
             <td [attr.colspan]="puedeCrear ? 5 : 4" class="empty-msg">No hay cursos para mostrar.</td>
           </tr>
         </tbody>

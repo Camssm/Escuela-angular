@@ -4,10 +4,9 @@ import { Observable } from 'rxjs';
 
 export interface Nota {
   id?: number;
+  valor: number;
+  evaluacionId: number;
   alumnoId: number;
-  cursoId: number;
-  evaluacion: string;
-  nota: number;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -17,19 +16,19 @@ export class NotaService {
 
   constructor(private http: HttpClient) { }
 
-  getNotas(): Observable<Nota[]> {
-    return this.http.get<Nota[]>(`${this.URL_RESOURCE}/notas`);
+  getPorEvaluacion(evaluacionId: number): Observable<Nota[]> {
+    return this.http.get<Nota[]>(`${this.URL_RESOURCE}/evaluacion/${evaluacionId}`);
   }
 
-  nuevaNota(nota: Nota): Observable<void> {
-    return this.http.put<void>(`${this.URL_RESOURCE}/agregar`, nota);
+  crear(nota: Nota): Observable<Nota> {
+    return this.http.post<Nota>(this.URL_RESOURCE, nota);
   }
 
-  modificarNota(id: number, nota: Nota): Observable<void> {
-    return this.http.put<void>(`${this.URL_RESOURCE}/modificar/${id}`, nota);
+  editar(id: number, valor: number): Observable<Nota> {
+    return this.http.put<Nota>(`${this.URL_RESOURCE}/${id}`, { valor });
   }
 
-  eliminarNota(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.URL_RESOURCE}/eliminar/${id}`);
+  eliminar(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.URL_RESOURCE}/${id}`);
   }
 }

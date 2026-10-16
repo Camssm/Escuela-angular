@@ -8,17 +8,16 @@ export class AuthService {
 
   constructor(private router: Router) { }
 
-  guardarSesion(token: string, rol?: string, usuarioId?: number): void {
+  guardarSesion(token: string): void {
     localStorage.setItem('token', token);
 
-    const rolFinal = rol ?? this.rolDesdeToken(token);
-    if (rolFinal) {
-      localStorage.setItem('rol', this.normalizar(rolFinal));
-    }
+    const datos = this.leerToken(token);
 
-    const idFinal = usuarioId ?? this.idDesdeToken(token);
-    if (idFinal !== null && idFinal !== undefined) {
-      localStorage.setItem('usuarioId', String(idFinal));
+    if (datos?.rol) {
+      localStorage.setItem('rol', String(datos.rol).replace('ROLE_', '').toUpperCase());
+    }
+    if (datos?.sub) {
+      localStorage.setItem('username', String(datos.sub));
     }
   }
 
@@ -30,9 +29,8 @@ export class AuthService {
     return localStorage.getItem('rol') as Rol | null;
   }
 
-  get usuarioId(): number | null {
-    const valor = localStorage.getItem('usuarioId');
-    return valor ? Number(valor) : null;
+  get username(): string | null {
+    return localStorage.getItem('username');
   }
 
   tieneRol(...roles: Rol[]): boolean {
@@ -40,9 +38,12 @@ export class AuthService {
     return !!actual && roles.includes(actual);
   }
 
-  // Permisos (solo para mostrar/ocultar en pantalla)
   puedeCrearCursos(): boolean {
-    return this.tieneRol('ROOT', 'PRECEPTOR', 'ADMINISTRATIVO');
+    return this.tieneRol('ROOT', 'PRECEPTOR');
+  }
+
+  puedeGestionarAlumnos(): boolean {
+    return this.tieneRol('PRECEPTOR');
   }
 
   puedeEditarNotas(): boolean {
@@ -51,11 +52,11 @@ export class AuthService {
 
   inicioPorRol(): string {
     switch (this.rol) {
-      case 'ROOT': return '/usuarios';
+      case 'ROOT':
+      case 'ADMINISTRATIVO': return '/usuarios';
       case 'DOCENTE': return '/notas';
       case 'DIRECTOR': return '/cursos';
-      case 'PRECEPTOR':
-      case 'ADMINISTRATIVO': return '/alumnos';
+      case 'PRECEPTOR': return '/alumnos';
       default: return '/login';
     }
   }
@@ -63,13 +64,9 @@ export class AuthService {
   logout(): void {
     localStorage.removeItem('token');
     localStorage.removeItem('rol');
-    localStorage.removeItem('usuarioId');
+    localStorage.removeItem('username');
     localStorage.removeItem('demo');
     this.router.navigate(['/login']);
-  }
-
-  private normalizar(rol: string): string {
-    return rol.replace('ROLE_', '').toUpperCase();
   }
 
   private leerToken(token: string): any {
@@ -79,19 +76,5 @@ export class AuthService {
     } catch {
       return null;
     }
-  }
-
-  private rolDesdeToken(token: string): string | null {
-    const datos = this.leerToken(token);
-    if (!datos) return null;
-    const valor = datos.rol ?? datos.role ?? datos.roles ?? datos.auth ?? datos.authorities;
-    return Array.isArray(valor) ? valor[0] : valor ?? null;
-  }
-
-  private idDesdeToken(token: string): number | null {
-    const datos = this.leerToken(token);
-    if (!datos) return null;
-    const valor = datos.id ?? datos.userId ?? datos.usuarioId;
-    return valor !== undefined ? Number(valor) : null;
   }
 }

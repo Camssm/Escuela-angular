@@ -1,85 +1,90 @@
 <div class="page-container">
-  <!-- Tarjeta del Formulario -->
-  <div class="card-custom">
-    <h2 class="section-title">Gestión de Alumnos</h2>
+
+  <div class="card-custom" *ngIf="puedeEditar">
+    <h2 class="section-title">{{ idEdicion !== null ? 'Modificar alumno' : 'Agregar alumno' }}</h2>
+
+    <p class="mensaje" *ngIf="mensaje">{{ mensaje }}</p>
 
     <form [formGroup]="formulario" (ngSubmit)="guardarAlumno()" class="formulario-grid">
-      
+
       <div class="form-group">
         <label for="nombreInput">Nombre</label>
-        <input 
-          type="text" 
-          id="nombreInput" 
-          placeholder="Ingrese el nombre" 
-          formControlName="nombre">
+        <input type="text" id="nombreInput" placeholder="Ingrese el nombre" formControlName="nombre">
       </div>
 
       <div class="form-group">
         <label for="apellidoInput">Apellido</label>
-        <input 
-          type="text" 
-          id="apellidoInput" 
-          placeholder="Ingrese el apellido" 
-          formControlName="apellido">
+        <input type="text" id="apellidoInput" placeholder="Ingrese el apellido" formControlName="apellido">
       </div>
 
-      <div class="form-group full-width">
-        <label for="gmailInput">Correo Electrónico</label>
-        <input 
-          type="email" 
-          id="gmailInput" 
-          placeholder="ejemplo@correo.com" 
-          formControlName="gmail">
+      <div class="form-group">
+        <label for="gmailInput">Gmail</label>
+        <input type="email" id="gmailInput" placeholder="ejemplo@gmail.com" formControlName="gmail">
+      </div>
+
+      <div class="form-group">
+        <label for="cursoSelect">Curso</label>
+        <select id="cursoSelect" formControlName="cursoId">
+          <option [ngValue]="null">Sin asignar</option>
+          <option *ngFor="let c of cursos" [ngValue]="c.id">
+            {{ c.materia }} ({{ ocupados(c.id) }}/{{ c.cupo }})
+          </option>
+        </select>
       </div>
 
       <div class="form-actions full-width">
-        <button 
-          type="submit" 
-          class="btn-submit" 
-          [disabled]="formulario.invalid">
-          <span>Ejecutar</span>
+        <button type="submit" class="btn-submit" [disabled]="formulario.invalid">
+          <span>{{ idEdicion !== null ? 'Guardar cambios' : 'Agregar alumno' }}</span>
+        </button>
+        <button type="button" class="btn-tabla" *ngIf="idEdicion !== null" (click)="cancelarEdicion()">
+          Cancelar
         </button>
       </div>
 
     </form>
   </div>
 
-  <!-- Tarjeta de la Tabla -->
   <div class="card-custom">
-    <h3 class="section-title">Lista de Alumnos</h3>
+    <h3 class="section-title">Lista de alumnos</h3>
+    <p class="solo-lectura" *ngIf="!puedeEditar">Vista de solo lectura</p>
+    <p class="mensaje" *ngIf="mensaje && !puedeEditar">{{ mensaje }}</p>
 
     <div class="table-responsive">
       <table class="tabla-custom">
-  <thead>
-    <tr>
-      <th>Nombre</th>
-      <th>Apellido</th>
-      <th>Gmail</th>
-      <th>Estado</th>
-      <th>Acciones</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr *ngFor="let alumno of alumnos">
-      <td>{{ alumno?.nombre }}</td>
-      <td>{{ alumno?.apellido }}</td>
-      <td>{{ alumno?.gmail }}</td>
-      <td>
-        <span class="badge" [ngClass]="alumno.habilitado ? 'badge-ok' : 'badge-off'">
-          {{ alumno.habilitado ? 'Habilitado' : 'Deshabilitado' }}
-        </span>
-      </td>
-      <td>
-        <button type="button" class="btn-tabla" (click)="cambiarEstado(alumno)">
-          {{ alumno.habilitado ? 'Deshabilitar' : 'Habilitar' }}
-        </button>
-      </td>
-    </tr>
-    <tr *ngIf="!alumnos || alumnos.length === 0">
-      <td colspan="5" class="empty-msg">No hay alumnos registrados.</td>
-    </tr>
-  </tbody>
-</table>
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Apellido</th>
+            <th>Gmail</th>
+            <th>Curso</th>
+            <th>Estado</th>
+            <th *ngIf="puedeEditar">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let alumno of alumnos">
+            <td>{{ alumno.nombre }}</td>
+            <td>{{ alumno.apellido }}</td>
+            <td>{{ alumno.gmail }}</td>
+            <td>{{ nombreCurso(alumno.cursoId) }}</td>
+            <td>
+              <span class="badge" [ngClass]="claseEstado(alumno)">{{ textoEstado(alumno) }}</span>
+            </td>
+            <td *ngIf="puedeEditar">
+              <div class="acciones">
+                <button type="button" class="btn-tabla" (click)="editar(alumno)">Modificar</button>
+                <button type="button" class="btn-tabla" [ngClass]="{ 'btn-peligro': alumno.estado !== 'DESHABILITADO' }"
+                        (click)="cambiarEstado(alumno)">
+                  {{ alumno.estado === 'DESHABILITADO' ? 'Habilitar' : 'Deshabilitar' }}
+                </button>
+              </div>
+            </td>
+          </tr>
+          <tr *ngIf="alumnos.length === 0">
+            <td [attr.colspan]="puedeEditar ? 6 : 5" class="empty-msg">No hay alumnos registrados.</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </div>

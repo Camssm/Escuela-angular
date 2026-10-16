@@ -3,8 +3,9 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { CursoService, Curso } from '../../servicios/curso.service';
-import { UsuarioService, Usuario } from '../../servicios/usuario.service';
+import { AdministracionService, Personal } from '../../servicios/administracion.service';
 import { AuthService } from '../../servicios/auth.service';
+import { mensajeDeError } from '../../utils/errores';
 
 @Component({
   selector: 'app-cursos',
@@ -17,21 +18,21 @@ export class CursosComponent implements OnInit {
 
   formulario!: FormGroup;
   cursos: Curso[] = [];
-  docentes: Usuario[] = [];
+  docentes: Personal[] = [];
+  listaDocentes: boolean | null = null;
   puedeCrear = false;
-  esDocente = false;
   idEdicion: number | null = null;
+  mensaje = '';
 
   constructor(
     private cursoService: CursoService,
-    private usuarioService: UsuarioService,
+    private administracionService: AdministracionService,
     private formBuilder: FormBuilder,
     private sesion: AuthService
   ) { }
 
   ngOnInit(): void {
     this.puedeCrear = this.sesion.puedeCrearCursos();
-    this.esDocente = this.sesion.tieneRol('DOCENTE');
     this.initializeForm();
     this.obtenerCursos();
 
@@ -51,51 +52,50 @@ export class CursosComponent implements OnInit {
 
   obtenerCursos(): void {
     this.cursoService.getCursos().subscribe({
-      next: (resp) => {
-        // El docente solo ve los cursos que tiene asignados
-        this.cursos = this.esDocente
-          ? resp.filter(c => c.docenteId === this.sesion.usuarioId)
-          : resp;
-      },
-      error: (err) => console.error('Error al obtener cursos:', err)
+      next: (resp) => this.cursos = resp,
+      error: (err) => this.mensaje = mensajeDeError(err)
     });
   }
 
   obtenerDocentes(): void {
-    this.usuarioService.getUsuarios().subscribe({
+    this.administracionService.getPersonal().subscribe({
       next: (resp) => {
-        this.docentes = resp.filter(u => u.rol === 'DOCENTE' && u.habilitado !== false);
+        this.docentes = resp.filter(p => p.cargo === 'DOCENTE');
+        this.listaDocentes = true;
       },
-      error: (err) => console.error('Error al obtener docentes:', err)
+      // Si el rol no puede leer el personal (ej: Preceptor), se pide el ID a mano
+      error: () => this.listaDocentes = false
     });
   }
 
   guardarCurso(): void {
     if (this.formulario.invalid || !this.puedeCrear) return;
 
-    const valores = this.formulario.value;
-    const docente = this.docentes.find(d => d.id === valores.docenteId);
+    const v = this.formulario.value;
 
     const curso: Curso = {
-      materia: valores.materia,
-      docenteId: valores.docenteId,
-      nombreMaestro: docente ? `${docente.nombre} ${docente.apellido}` : '',
-      horario: valores.horario,
-      cupo: valores.cupo
+      materia: v.materia,
+      docenteId: Number(v.docenteId),
+      horario: v.horario,
+      cupo: v.cupo
     };
 
     const peticion = this.idEdicion !== null
       ? this.cursoService.editarCurso({ ...curso, id: this.idEdicion })
       : this.cursoService.nuevoCurso(curso);
 
-    peticion.subscribe(() => {
-      this.cancelarEdicion();
-      this.obtenerCursos();
+    peticion.subscribe({
+      next: () => {
+        this.cancelarEdicion();
+        this.obtenerCursos();
+      },
+      error: (err) => this.mensaje = mensajeDeError(err)
     });
   }
 
   editar(curso: Curso): void {
     this.idEdicion = curso.id ?? null;
+    this.mensaje = '';
     this.formulario.patchValue({
       materia: curso.materia,
       docenteId: curso.docenteId,
@@ -106,11 +106,16 @@ export class CursosComponent implements OnInit {
 
   eliminar(curso: Curso): void {
     if (curso.id === undefined || !confirm('¿Eliminar este curso?')) return;
-    this.cursoService.eliminarCurso(curso.id).subscribe(() => this.obtenerCursos());
+
+    this.cursoService.eliminarCurso(curso.id).subscribe({
+      next: () => this.obtenerCursos(),
+      error: (err) => this.mensaje = mensajeDeError(err)
+    });
   }
 
   cancelarEdicion(): void {
     this.idEdicion = null;
+    this.mensaje = '';
     this.formulario.reset();
   }
 }

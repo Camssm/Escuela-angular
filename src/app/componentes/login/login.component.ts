@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { LoginService } from '../../servicios/login.service';
-import { AuthService, Rol } from '../../servicios/auth.service';
+import { AuthService } from '../../servicios/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -38,26 +38,17 @@ export class LoginComponent implements OnInit {
   onLogin(): void {
     if (this.formulario.invalid) return;
 
-    localStorage.removeItem('demo');
-
     this.authService.login(this.formulario.value).subscribe({
       next: (resp) => {
-        const token = resp.id_token || resp.token;
-        if (token) {
-          this.sesion.guardarSesion(token, resp.rol, resp.id);
-          this.router.navigate([this.sesion.inicioPorRol()]);
-        }
+        this.sesion.guardarSesion(resp.token);
+        this.router.navigate([this.sesion.inicioPorRol()]);
       },
       error: (err) => {
         console.error('Error de autenticación:', err);
-        this.mensajeError = 'Usuario o contraseña incorrectos';
+        this.mensajeError = err.status === 0
+          ? 'No se pudo conectar con el servidor'
+          : 'Usuario o contraseña incorrectos';
       }
     });
-  }
-
-  entrarDemo(rol: Rol): void {
-    localStorage.setItem('demo', '1');
-    this.sesion.guardarSesion('token-demo', rol);
-    this.router.navigate([this.sesion.inicioPorRol()]);
   }
 }

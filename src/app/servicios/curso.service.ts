@@ -6,7 +6,7 @@ export interface Curso {
   id?: number;
   materia: string;
   docenteId: number;
-  nombreMaestro: string;
+  nombreMaestro?: string;
   horario: string;
   cupo: number;
 }

@@ -8,10 +8,7 @@ export interface LoginCredentials {
 }
 
 export interface AuthResponse {
-  id_token?: string;
-  token?: string;
-  rol?: string;
-  id?: number;
+  token: string;
 }
 
 @Injectable({
@@ -19,7 +16,7 @@ export interface AuthResponse {
 })
 export class LoginService {
 
-private URL_RESOURCE = "http://localhost:8080/auth/login";
+  private URL_RESOURCE = 'http://localhost:8080/auth/login';
 
   constructor(private http: HttpClient) { }
 

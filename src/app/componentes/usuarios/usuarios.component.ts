@@ -1,8 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { UsuarioService, Usuario, RolUsuario } from '../../servicios/usuario.service';
+import { AdministracionService, Personal, Cargo } from '../../servicios/administracion.service';
+import { UsuarioService } from '../../servicios/usuario.service';
 import { AuthService } from '../../servicios/auth.service';
+import { mensajeDeError } from '../../utils/errores';
 
 @Component({
   selector: 'app-usuarios',
@@ -14,10 +16,14 @@ import { AuthService } from '../../servicios/auth.service';
 export class UsuariosComponent implements OnInit {
 
   formulario!: FormGroup;
-  usuarios: Usuario[] = [];
-  esRoot = false;
+  personal: Personal[] = [];
+  puedeCrear = false;
+  creaCuenta = false;
+  esDirector = false;
+  idEdicion: number | null = null;
+  mensaje = '';
 
-  roles: { valor: RolUsuario; texto: string }[] = [
+  cargos: { valor: Cargo; texto: string }[] = [
     { valor: 'DOCENTE', texto: 'Docente' },
     { valor: 'DIRECTOR', texto: 'Director' },
     { valor: 'PRECEPTOR', texto: 'Preceptor' },
@@ -25,59 +31,123 @@ export class UsuariosComponent implements OnInit {
   ];
 
   constructor(
+    private administracionService: AdministracionService,
     private usuarioService: UsuarioService,
     private formBuilder: FormBuilder,
     private sesion: AuthService
   ) { }
 
   ngOnInit(): void {
-    this.esRoot = this.sesion.tieneRol('ROOT');
+    this.puedeCrear = this.sesion.tieneRol('ROOT', 'ADMINISTRATIVO');
+    this.creaCuenta = this.sesion.tieneRol('ROOT');
+    this.esDirector = this.sesion.tieneRol('DIRECTOR');
     this.initializeForm();
-    this.obtenerUsuarios();
+    this.obtenerPersonal();
+  }
+
+  get titulo(): string {
+    if (this.creaCuenta) return 'Gestión de usuarios';
+    if (this.puedeCrear) return 'Gestión de personal';
+    return 'Docentes';
   }
 
   initializeForm(): void {
     this.formulario = this.formBuilder.group({
-      rol: [null, Validators.required],
+      cargo: [null, Validators.required],
       nombre: ['', [Validators.required, Validators.minLength(3)]],
       apellido: ['', [Validators.required, Validators.minLength(3)]],
+      dni: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]]
+      password: ['', this.creaCuenta ? [Validators.required, Validators.minLength(6)] : []]
     });
   }
 
-  obtenerUsuarios(): void {
-    this.usuarioService.getUsuarios().subscribe({
+  obtenerPersonal(): void {
+    this.administracionService.getPersonal().subscribe({
       next: (resp) => {
-        // El director solo ve docentes
-        this.usuarios = this.esRoot ? resp : resp.filter(u => u.rol === 'DOCENTE');
+        // El director solo ve a los docentes
+        this.personal = this.esDirector ? resp.filter(p => p.cargo === 'DOCENTE') : resp;
       },
-      error: (err) => console.error('Error al obtener usuarios:', err)
+      error: (err) => this.mensaje = mensajeDeError(err)
     });
   }
 
-  guardarUsuario(): void {
-    if (this.formulario.invalid || !this.esRoot) return;
+  guardar(): void {
+    if (this.formulario.invalid || !this.puedeCrear) return;
 
-    const nuevoUsuario: Usuario = this.formulario.value;
+    const v = this.formulario.getRawValue();
 
-    this.usuarioService.nuevoUsuario(nuevoUsuario).subscribe(() => {
-      this.formulario.reset();
-      this.obtenerUsuarios();
+    const persona: Personal = {
+      nombre: v.nombre,
+      apellido: v.apellido,
+      dni: v.dni,
+      email: v.email,
+      cargo: v.cargo
+    };
+
+    // Modificar
+    if (this.idEdicion !== null) {
+      this.administracionService.editarPersonal({ ...persona, id: this.idEdicion }).subscribe({
+        next: () => this.terminar('Datos actualizados'),
+        error: (err) => this.mensaje = mensajeDeError(err)
+      });
+      return;
+    }
+
+    // Crear: primero el personal y después (solo Root) la cuenta de login
+    this.administracionService.nuevoPersonal(persona).subscribe({
+      next: () => {
+        if (!this.creaCuenta) {
+          this.terminar('Personal agregado');
+          return;
+        }
+
+        this.usuarioService.crearCuenta({
+          username: v.email,
+          password: v.password,
+          rol: v.cargo
+        }).subscribe({
+          next: () => this.terminar('Usuario creado. Ya puede iniciar sesión con su Gmail y contraseña'),
+          error: (err) => {
+            this.mensaje = 'Se guardó el personal pero falló la cuenta: ' + mensajeDeError(err);
+            this.obtenerPersonal();
+          }
+        });
+      },
+      error: (err) => this.mensaje = mensajeDeError(err)
     });
   }
 
-  textoRol(rol: string): string {
-    return this.roles.find(r => r.valor === rol)?.texto ?? rol;
+  editar(p: Personal): void {
+    this.idEdicion = p.id ?? null;
+    this.mensaje = '';
+    this.formulario.patchValue({
+      cargo: p.cargo,
+      nombre: p.nombre,
+      apellido: p.apellido,
+      dni: p.dni,
+      email: p.email
+    });
+    // El email es el usuario de login, no se cambia
+    this.formulario.get('email')?.disable();
+    this.formulario.get('password')?.disable();
   }
 
-    cambiarEstado(usuario: Usuario): void {
-    if (usuario.id === undefined || !this.esRoot) return;
+  cancelarEdicion(): void {
+    this.idEdicion = null;
+    this.mensaje = '';
+    this.formulario.get('email')?.enable();
+    this.formulario.get('password')?.enable();
+    this.formulario.reset();
+  }
 
-    const estabaHabilitado = usuario.habilitado !== false;
+  textoCargo(cargo: string): string {
+    return this.cargos.find(c => c.valor === cargo)?.texto ?? cargo;
+  }
 
-    this.usuarioService.cambiarEstado(usuario.id, !estabaHabilitado).subscribe(() => {
-      usuario.habilitado = !estabaHabilitado;
-    });
+  private terminar(texto: string): void {
+    this.cancelarEdicion();
+    this.mensaje = texto;
+    this.obtenerPersonal();
   }
 }

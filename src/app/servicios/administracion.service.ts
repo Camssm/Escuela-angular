@@ -2,13 +2,15 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
-export interface Administracion {
+export type Cargo = 'DIRECTOR' | 'PRECEPTOR' | 'DOCENTE' | 'ADMINISTRATIVO';
+
+export interface Personal {
   id?: number;
   nombre: string;
   apellido: string;
   dni: string;
   email: string;
-  especialidad: string;
+  cargo: Cargo;
 }
 
 @Injectable({
@@ -20,19 +22,15 @@ export class AdministracionService {
 
   constructor(private http: HttpClient) { }
 
-  getAdministraciones(): Observable<Administracion[]> {
-    return this.http.get<Administracion[]>(
-      `${this.URL_RESOURCE}/Administracion`
-    );
+  getPersonal(): Observable<Personal[]> {
+    return this.http.get<Personal[]>(`${this.URL_RESOURCE}/Administracion`);
   }
 
-  nuevaAdministracion(
-    administracion: Administracion
-  ): Observable<Administracion> {
+  nuevoPersonal(personal: Personal): Observable<void> {
+    return this.http.put<void>(`${this.URL_RESOURCE}/agregar`, personal);
+  }
 
-    return this.http.put<Administracion>(
-      `${this.URL_RESOURCE}/agregar`,
-      administracion
-    );
+  editarPersonal(personal: Personal): Observable<void> {
+    return this.http.put<void>(`${this.URL_RESOURCE}/editar`, personal);
   }
 }
