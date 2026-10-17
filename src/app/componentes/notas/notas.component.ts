@@ -100,10 +100,13 @@ export class NotasComponent implements OnInit {
       error: (err) => this.mensaje = mensajeDeError(err)
     });
 
-    this.alumnoService.getAlumnosPorCurso(id).subscribe({
-      next: (resp) => this.alumnos = resp,
-      error: (err) => this.mensaje = mensajeDeError(err)
-    });
+     this.alumnoService.getAlumnosPorCurso(id).subscribe({
+  next: (resp) => {
+    this.alumnos = resp;
+    console.log('Alumnos del curso:', resp);
+  },
+  error: (err) => this.mensaje = mensajeDeError(err)
+});
   }
 
   seleccionarEvaluacion(id: number | null): void {
