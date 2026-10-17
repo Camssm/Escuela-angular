@@ -30,6 +30,10 @@ export class AlumnoService {
     return this.http.get<Alumno[]>(`${this.URL_RESOURCE}/curso/${cursoId}`);
   }
 
+  obtenerConCurso(id: number): Observable<any> {
+  return this.http.get<any>(`${this.URL_RESOURCE}/${id}/con-curso`);
+  }
+
   nuevoAlumno(alumno: Alumno): Observable<void> {
     return this.http.put<void>(`${this.URL_RESOURCE}/agregar`, alumno);
   }

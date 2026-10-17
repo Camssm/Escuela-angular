@@ -22,6 +22,8 @@ export class AlumnosComponent implements OnInit {
   idEdicion: number | null = null;
   cursoOriginal: number | null = null;
   mensaje = '';
+  detalleAlumno: any = null;
+  cargandoDetalle = false;
 
   constructor(
     private alumnoService: AlumnoService,
@@ -153,4 +155,27 @@ export class AlumnosComponent implements OnInit {
       default: return 'badge-off';
     }
   }
+
+verDetalle(alumno: Alumno): void {
+  if (alumno.id === undefined) return;
+
+  this.detalleAlumno = null;
+  this.cargandoDetalle = true;
+
+  this.alumnoService.obtenerConCurso(alumno.id).subscribe({
+    next: (resp) => {
+      this.detalleAlumno = resp;
+      this.cargandoDetalle = false;
+    },
+    error: (err) => {
+      this.cargandoDetalle = false;
+      this.mensaje = mensajeDeError(err);
+    }
+  });
+}
+
+cerrarDetalle(): void {
+  this.detalleAlumno = null;
+}
+
 }

@@ -58,15 +58,14 @@ export class CursosComponent implements OnInit {
   }
 
   obtenerDocentes(): void {
-    this.administracionService.getPersonal().subscribe({
-      next: (resp) => {
-        this.docentes = resp.filter(p => p.cargo === 'DOCENTE');
-        this.listaDocentes = true;
-      },
-      // Si el rol no puede leer el personal (ej: Preceptor), se pide el ID a mano
-      error: () => this.listaDocentes = false
-    });
-  }
+  this.administracionService.getPersonal().subscribe({
+    next: (resp) => {
+      this.docentes = resp.filter(p => p.cargo === 'DOCENTE');
+      this.listaDocentes = true; // Si tiene permiso, se carga la lista
+    },
+    error: () => this.listaDocentes = false
+  });
+}
 
   guardarCurso(): void {
     if (this.formulario.invalid || !this.puedeCrear) return;

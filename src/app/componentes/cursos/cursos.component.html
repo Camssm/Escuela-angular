@@ -13,18 +13,27 @@
       </div>
 
       <div class="form-group">
-        <label for="docenteSelect">Docente</label>
+  <label for="docenteSelect">Docente</label>
 
-        <select *ngIf="listaDocentes === true" id="docenteSelect" formControlName="docenteId">
-          <option [ngValue]="null" disabled>Seleccioná un docente</option>
-          <option *ngFor="let d of docentes" [ngValue]="d.id">{{ d.apellido }}, {{ d.nombre }} (ID {{ d.id }})</option>
-        </select>
+  <!-- Si la lista de docentes cargó exitosamente (listaDocentes === true) -->
+  <select *ngIf="listaDocentes === true" id="docenteSelect" formControlName="docenteId">
+    <option [ngValue]="null" disabled selected>Seleccioná un docente</option>
+    <option *ngFor="let d of docentes" [ngValue]="d.id">
+      {{ d.apellido }}, {{ d.nombre }} (ID {{ d.id }})
+    </option>
+  </select>
 
-        <ng-container *ngIf="listaDocentes === false">
-          <input type="number" id="docenteSelect" placeholder="ID del docente" formControlName="docenteId">
-          <small class="solo-lectura">Ingresá el ID del docente (figura en la lista de personal).</small>
-        </ng-container>
-      </div>
+  <!-- Si falló la carga (listaDocentes === false), muestra el input alternativo -->
+  <ng-container *ngIf="listaDocentes === false">
+    <input type="number" id="docenteSelect" placeholder="ID del docente" formControlName="docenteId">
+    <small class="solo-lectura">Ingresá el ID del docente (figura en la lista de personal).</small>
+  </ng-container>
+
+  <!-- Si todavía está cargando la petición HTTP (listaDocentes === null) -->
+  <select *ngIf="listaDocentes === null" disabled>
+    <option>Cargando docentes...</option>
+  </select>
+</div>
 
       <div class="form-group">
         <label for="horarioInput">Horario</label>

@@ -289,3 +289,22 @@
   color: #64748b;
   font-size: 14px;
 }
+
+.tabla-custom .btn-tabla {
+background: linear-gradient(135deg, #facc15, #eab308);
+color: #422006;
+border: none;
+padding: 8px 14px;
+border-radius: 8px;
+font-size: 13px;
+font-weight: 600;
+cursor: pointer;
+transition: all 0.3s ease;
+}
+
+.tabla-custom .btn-tabla {
+background: linear-gradient(135deg, #eab308, #ca8a04);
+color: #ffffff;
+transform: translateY(-2px);
+box-shadow: 0 4px 12px rgba(234, 179, 8, 0.3);
+}

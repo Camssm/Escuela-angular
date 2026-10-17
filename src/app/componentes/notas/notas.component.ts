@@ -1,8 +1,19 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  Validators,
+  ReactiveFormsModule,
+  FormsModule
+} from '@angular/forms';
 import { CommonModule } from '@angular/common';
+
 import { NotaService, Nota } from '../../servicios/nota.service';
-import { EvaluacionService, Evaluacion, TipoEvaluacion } from '../../servicios/evaluacion.service';
+import {
+  EvaluacionService,
+  Evaluacion,
+  TipoEvaluacion
+} from '../../servicios/evaluacion.service';
 import { AlumnoService, Alumno } from '../../servicios/alumno.service';
 import { CursoService, Curso } from '../../servicios/curso.service';
 import { AuthService } from '../../servicios/auth.service';
@@ -47,7 +58,7 @@ export class NotasComponent implements OnInit {
     private cursoService: CursoService,
     private formBuilder: FormBuilder,
     private sesion: AuthService
-  ) { }
+  ) {}
 
   ngOnInit(): void {
     this.puedeEditar = this.sesion.puedeEditarNotas();
@@ -59,9 +70,18 @@ export class NotasComponent implements OnInit {
       fecha: ['', Validators.required]
     });
 
+    this.cargarCursos();
+  }
+
+  private cargarCursos(): void {
     this.cursoService.getCursos().subscribe({
-      next: (resp) => this.cursos = resp,
-      error: (err) => this.mensaje = mensajeDeError(err)
+      next: (resp) => {
+        this.cursos = resp;
+        console.log('Cursos recibidos:', resp);
+      },
+      error: (err) => {
+        this.mensaje = mensajeDeError(err);
+      }
     });
   }
 
@@ -94,18 +114,33 @@ export class NotasComponent implements OnInit {
   }
 
   cargarNotas(): void {
-    if (this.evaluacionId === null) return;
+  if (this.evaluacionId === null) return;
 
-    this.notaService.getPorEvaluacion(this.evaluacionId).subscribe({
-      next: (resp) => this.notas = resp,
-      error: (err) => this.mensaje = mensajeDeError(err)
-    });
-  }
+  this.notaService.getPorEvaluacion(this.evaluacionId).subscribe({
+    next: (resp) => {
+      console.log('Notas recibidas del backend:', resp);
+      this.notas = resp;
+    },
+    error: (err) => {
+      console.error('Error al cargar las notas:', err);
+      this.mensaje = mensajeDeError(err);
+    }
+  });
+}
 
   crearEvaluacion(): void {
-    if (this.formulario.invalid || this.cursoId === null || !this.puedeEditar) return;
+    if (
+      this.formulario.invalid ||
+      this.cursoId === null ||
+      !this.puedeEditar
+    ) {
+      return;
+    }
 
-    const nueva: Evaluacion = { ...this.formulario.value, cursoId: this.cursoId };
+    const nueva: Evaluacion = {
+      ...this.formulario.value,
+      cursoId: this.cursoId
+    };
 
     this.evaluacionService.crear(nueva).subscribe({
       next: (creada) => {
@@ -122,11 +157,22 @@ export class NotasComponent implements OnInit {
   }
 
   guardarNota(alumno: Alumno, texto: string): void {
-    if (!this.puedeEditar || this.evaluacionId === null || alumno.id === undefined) return;
+    if (
+      !this.puedeEditar ||
+      this.evaluacionId === null ||
+      alumno.id === undefined
+    ) {
+      return;
+    }
 
     const valor = Number(texto);
 
-    if (texto.trim() === '' || isNaN(valor) || valor < 0 || valor > 10) {
+    if (
+      texto.trim() === '' ||
+      isNaN(valor) ||
+      valor < 0 ||
+      valor > 10
+    ) {
       this.mensaje = 'La nota debe estar entre 0 y 10';
       return;
     }
@@ -135,7 +181,11 @@ export class NotasComponent implements OnInit {
 
     const peticion = existente?.id !== undefined
       ? this.notaService.editar(existente.id, valor)
-      : this.notaService.crear({ valor, evaluacionId: this.evaluacionId, alumnoId: alumno.id });
+      : this.notaService.crear({
+          valor,
+          evaluacionId: this.evaluacionId,
+          alumnoId: alumno.id
+        });
 
     peticion.subscribe({
       next: () => {
@@ -148,7 +198,14 @@ export class NotasComponent implements OnInit {
 
   eliminarNota(alumno: Alumno): void {
     const existente = this.notaDe(alumno.id);
-    if (!this.puedeEditar || existente?.id === undefined || !confirm('¿Eliminar esta nota?')) return;
+
+    if (
+      !this.puedeEditar ||
+      existente?.id === undefined ||
+      !confirm('¿Eliminar esta nota?')
+    ) {
+      return;
+    }
 
     this.notaService.eliminar(existente.id).subscribe({
       next: () => this.cargarNotas(),
